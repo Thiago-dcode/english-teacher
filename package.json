@@ -1,0 +1,26 @@
+{
+  "name": "english-teacher",
+  "version": "1.0.0",
+  "description": "learning node",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "author": "thiagodcode",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "standard": "^17.1.0"
+  },
+  "eslintConfig": {
+    "extends": "standard"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "openai": "^4.21.0"
+  }
+}
