@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 function queryStringToObject (queryString) {
   const obj = {}
   if (!queryString) return obj
@@ -57,21 +58,22 @@ function getBody (req) {
     })
   })
 }
-function cookieToObj (rawCookies = '') {
+function cookieToObj (rawCookies = '', keyToAvoid = '') {
   let cookies = {}
   if (rawCookies) {
     cookies = rawCookies.split(';').reduce((prev, cookie) => {
       const [key, value] = cookie.split('=')
-
       return { ...prev, [key.trim()]: value }
     }, {})
   }
-  return cookies
+  if (cookies.hasOwnProperty(keyToAvoid)) {
+    delete cookies[keyToAvoid]
+  } return cookies
 }
-function setCookies (cookies, key, value, params) {
+function paramsToString (params) {
   try {
     const paramsEntries = Object.entries(params)
-    const paramsToString = paramsEntries.reduce((acc, curr, i) => {
+    const paramsString = paramsEntries.reduce((acc, curr, i) => {
       let str = ''
       const key = curr[0]
       const value = curr[1]
@@ -83,13 +85,24 @@ function setCookies (cookies, key, value, params) {
       }
       return acc + ` ${str}`
     }, '')
-    const valueWithAtributes = `${value};${paramsToString}`
-    cookies[key] = valueWithAtributes
+
+    return paramsString
   } catch (error) {
-    console.log(error.message)
+    console.log('ERROR SETTING IN appendCookies()', error.message)
   }
+}
+function generateSessionId (length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const charLength = characters.length
+  let sessionId = ''
+
+  for (let i = 0; i < length; i++) {
+    sessionId += characters.charAt(Math.floor(Math.random() * charLength))
+  }
+
+  return sessionId
 }
 
 module.exports = {
-  queryStringToObject, responseAssets, getBody, cookieToObj, setCookies
+  queryStringToObject, responseAssets, getBody, cookieToObj, paramsToString, generateSessionId
 }
