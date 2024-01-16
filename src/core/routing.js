@@ -62,7 +62,7 @@ const getRoute = (obj, arrRoutes, req, res, index = 0) => {
       if (dynamicRoute) {
         return {
           fn: obj[dynamicRoute]['/'],
-          params: [req, res, property.split('/').filter(Boolean).join('')]
+          params: [property.split('/').filter(Boolean).join('')]
         }
       }
     }
@@ -70,7 +70,7 @@ const getRoute = (obj, arrRoutes, req, res, index = 0) => {
       fn: () => {
         res.end('<h1>404 not found</h1>')
       },
-      params: [req, res]
+      params: []
     }
   }
   if (index === arrRoutes.length - 1) {
@@ -79,7 +79,7 @@ const getRoute = (obj, arrRoutes, req, res, index = 0) => {
         fn: () => {
           res.end('<h1>404 not found</h1>')
         },
-        params: [req, res]
+        params: []
       }
     }
     // registerMidleWare(obj[property]['/'])

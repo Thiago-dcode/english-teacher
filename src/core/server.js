@@ -1,18 +1,21 @@
 const http = require('node:http')
-const { middleware, run, cleanQueue } = require('./middleware.js')
+const { refreshSid } = require('../middleware/refreshSid.js')
+const { initMiddleWare } = require('./middleware.js')
 const { registerRoute, route } = require('./routing')
-const { bootStrap } = require('./bootstrap')
+const { bootStrap } = require('./bootstrap/bootstrap.js')
 const { registerRoutes } = require('../routes/registerRoutes')
 const processRequest = async (req, res) => {
-  cleanQueue()
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('content-type', 'text/html; charset=utf-8')
-  await bootStrap(req, res)
-  console.log('PATH', req.path)
+  const middleware = initMiddleWare(req, res)
   registerRoutes(registerRoute, middleware)
+  await bootStrap(req, res, http)
+  console.log('PATH', req.path)
+  middleware.add(refreshSid)
   const { fn, params } = route(req, res)
-  middleware.set(fn, params)
-  run()
+  middleware.add(fn, params)
+
+  middleware.next()
 }
 
 const start = () => {

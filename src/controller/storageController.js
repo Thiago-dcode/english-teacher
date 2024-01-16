@@ -1,13 +1,14 @@
-const { getAsset } = require('./render.js')
-const { responseAssets } = require('./utils.js')
+const { getAsset } = require('../core/render.js')
+const { responseAssets } = require('../core/utils.js')
 
 const storageController = {
 
   css: async (req, res, css) => {
+    console.log(css)
     const result = await getAsset('css', css)
 
     res.setHeader('Content-Type', 'text/css')
-    responseAssets(result, res)
+    return responseAssets(result, res)
   },
   js: async (req, res, js) => {
     res.setHeader('Content-Type', 'application/javascript')

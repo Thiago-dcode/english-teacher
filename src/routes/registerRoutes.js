@@ -1,31 +1,25 @@
-const { authorize } = require('../core/auth.js')
-const { homeController } = require('../controller/homeController.js')
-const { aboutController } = require('../controller/aboutController.js')
-const { postController } = require('../controller/postController.js')
-const { openAiController } = require('../controller/openAiController.js')
-const { teacherController } = require('../controller/teacherController.js')
-const { authController } = require('../controller/authController.js')
-const { storageController } = require('../core/storageController.js')
-
+const { controller } = require('../core/controller')
+const { authorize } = require('../middleware/authorize')
 const registerRoutes = (route, middleware) => {
   defaultRoutes(route, middleware)
-  route.GET('/login', authController.index)
-  route.POST('/login', authController.login)
-  route.GET('/', homeController.index)
-  middleware.set(authorize, [
-    [route.GET('/about', aboutController.index),
-      route.GET('/posts', postController.index)]
-  ])
-  route.GET('/about', aboutController.index)
-  route.GET('/posts', postController.index)
-  route.GET('/posts/{slug}', postController.show)
-  route.GET('/teacher', teacherController.index)
-  route.POST('/ai', openAiController.index)
+  route.GET('/login', controller.get('auth'))
+  route.POST('/login', controller.get('auth', 'login'))
+  route.GET('/', controller.get('home'))
+  middleware.add(authorize,
+    [
+      route.GET('/about', controller.get('about')),
+      route.GET('/posts', controller.get('post')),
+      route.GET('/teacher', controller.get('teacher')),
+      route.POST('/ai', controller.get('openAi'))
+    ]
+  )
+
+  route.GET('/posts/{slug}', controller.get('post', 'show'))
 }
 
 const defaultRoutes = (route) => {
-  route.GET('/css/{css}', storageController.css)
-  route.GET('/js/{js}', storageController.js)
+  route.GET('/css/{css}', controller.get('storage', 'css'))
+  route.GET('/js/{js}', controller.get('storage', 'js'))
 }
 
 module.exports = { registerRoutes }

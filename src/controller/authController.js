@@ -1,5 +1,5 @@
 const { render } = require('../core/render.js')
-const { authenticate } = require('../core/auth.js')
+const { authorize } = require('../core/auth.js')
 const authController = {
 
   index: async (req, res) => {
@@ -7,23 +7,24 @@ const authController = {
   },
   login: async (req, res) => {
     const user = {
+      id: 1,
       username: 'thiago',
       password: '1234'
     }
-    res.setHeader('Set-Cookie', 'cookie_1', 'my amazing cookie 1')
+    const body = req.body
+    console.log('BODY', body)
     // eslint-disable-next-line no-prototype-builtins
-    if (!req.body.hasOwnProperty('username') && !req.body.hasOwnProperty('username')) {
+    if (!body.hasOwnProperty('username') && !body.hasOwnProperty('username')) {
       res.end(await render('login'))
-    } else if (req.body.username !== user.username) {
+    } else if (body.username !== user.username) {
       res.end(await render('login'))
-    } else if (req.body.password !== user.password) {
+    } else if (body.password !== user.password) {
       res.end(await render('login'))
     } else {
-      await authenticate(user)
+      await authorize(req, res, user, body.hasOwnProperty('remember-me'))
       res.end()
     }
   }
-
 }
 
 module.exports = {

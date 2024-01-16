@@ -1,31 +1,40 @@
-const { global } = require('./global')
+class Middleware {
+  currentMiddleware = -1
+  queue = []
 
-let currentMidleware = -1
-const prevMidleware = 0
-let queue = []
-const middleware = {
-  set: (mw, params = []) => {
-    registerMidleware(mw, params)
+  constructor (req, res) {
+    this.req = req
+    this.res = res
   }
 
+  add (middleware, params = []) {
+    if (typeof middleware !== 'function') {
+      throw new Error('MIDDLEWARE MUST BE A FUNCTION')
+    }
+    if (params.length > 0) {
+      this.queue.push(() => {
+        middleware(this.req, this.res, params, this.next.bind(this))
+      })
+      return
+    }
+    this.queue.push(() => {
+      middleware(this.req, this.res, this.next.bind(this))
+    })
+  }
+
+  next () {
+    try {
+      this.currentMiddleware++
+      if (this.currentMiddleware < this.queue.length) {
+        this.queue[this.currentMiddleware]()
+      }
+    } catch (error) {
+      throw new Error(`Error in middleware ${this.currentMiddleware}: ${error.message}`)
+    }
+  }
 }
 
-const registerMidleware = async (middleware, params) => {
-  queue.push(() => {
-    middleware(...[...params, next])
-  })
+const initMiddleWare = (req, res) => {
+  return new Middleware(req, res)
 }
-const next = () => {
-  console.log(queue.length)
-  if (currentMidleware > queue.length - 1) return
-  currentMidleware++
-  queue[currentMidleware]()
-}
-const cleanQueue = () => {
-  queue = []
-  currentMidleware = -1
-}
-const run = () => {
-  next()
-}
-module.exports = { middleware, run, cleanQueue }
+module.exports = { initMiddleWare }

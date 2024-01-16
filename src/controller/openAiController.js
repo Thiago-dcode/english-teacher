@@ -1,8 +1,7 @@
 const { OpenAI } = require('openai')
-const { config } = require('dotenv')
-config()
+const { env } = require('../core/utils')
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_KEY
+  apiKey: env.get('OPENAI_KEY')
 })
 const messages = []
 

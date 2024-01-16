@@ -69,4 +69,20 @@ header a img {
   margin: 0 auto;
 }
 
+.form .remember-me{
 
+    display: flex;
+  margin-top: 1rem;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+
+}
+.form .remember-me input {
+  accent-color: #328f8a;
+  margin: auto;
+width: fit-content;
+padding: 0;
+margin: 0;
+
+}
