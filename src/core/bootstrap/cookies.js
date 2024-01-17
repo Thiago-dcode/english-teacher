@@ -1,7 +1,9 @@
 const { paramsToString } = require('../utils')
 class Cookies {
-  constructor (cookies) {
+  constructor (cookies, req, res) {
     this.cookies = cookies || {}
+    this.req = req
+    this.res = res
   }
 
   get (key = '') {
@@ -10,9 +12,14 @@ class Cookies {
   }
 
   del (key) {
-    this.cookies[key] = `${''};${paramsToString({
-      Expire: (new Date(0))
+    this.cookies[key] = `${0};${paramsToString({
+      Path: '/',
+      httpOnly: true,
+      Secure: true,
+      SameSite: 'Strict',
+      Expires: (new Date(0))
     })}`
+    this.setCookiesHeader()
   }
 
   set (key, value = '', params = {
@@ -22,22 +29,24 @@ class Cookies {
     SameSite: 'Strict'
   }) {
     this.cookies[key] = `${value};${paramsToString(params)}`
+    this.setCookiesHeader()
   }
 
   exist (key) {
     return this.cookies.hasOwnProperty(key)
   }
 
-  setCookiesHeader (res) {
+  setCookiesHeader () {
     try {
       const arrCookies = Object.entries(this.cookies).reduce((acc, curr) => {
         const [key, value] = curr
+
         if (!value) {
-          return [...acc, `${key}=;Expires=${new Date(0).toUTCString()}`]
+          return [...acc, `${key}='1';Max-Age=0`]
         }
         return [...acc, `${key}=${value}`]
       }, [])
-      res.setHeader('Set-Cookie', arrCookies)
+      this.res.setHeader('Set-Cookie', arrCookies)
     } catch (error) {
       console.log('Error setting cookies', error)
     }
@@ -58,7 +67,7 @@ function cookieToObj (rawCookies = '', keyToAvoid = '') {
 }
 const setCookiesProperty = (req, res) => {
   const cookies = cookieToObj(req.headers?.cookie ?? '')
-  const cookieObj = new Cookies(cookies)
+  const cookieObj = new Cookies(cookies, req, res)
   req.cookies = cookieObj
   res.cookies = cookieObj
 }

@@ -1,5 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 const { config } = require('dotenv')
+const { v4: uuidv4 } = require('uuid')
 config()
 
 function responseAssets (result, res) {
@@ -16,8 +17,6 @@ function responseAssets (result, res) {
   }
   res.end(result.data)
 }
-
-
 
 function paramsToString (params) {
   try {
@@ -40,16 +39,8 @@ function paramsToString (params) {
     console.log('ERROR SETTING IN appendCookies()', error.message)
   }
 }
-function generateSessionId (length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  const charLength = characters.length
-  let sessionId = ''
-
-  for (let i = 0; i < length; i++) {
-    sessionId += characters.charAt(Math.floor(Math.random() * charLength))
-  }
-
-  return sessionId
+function generateSessionId () {
+  return uuidv4() // ⇨ '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
 }
 const getCookieExpiration = (days) => {
   const expirationDate = new Date()
@@ -64,5 +55,5 @@ const env = {
 }
 
 module.exports = {
- responseAssets, paramsToString, generateSessionId, getCookieExpiration, env
+  responseAssets, paramsToString, generateSessionId, getCookieExpiration, env
 }

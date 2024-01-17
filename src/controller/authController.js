@@ -1,5 +1,5 @@
-const { render } = require('../core/render.js')
-const { authorize } = require('../core/auth.js')
+const { render } = require('../core/bootstrap/render.js')
+const { authorize, logOut } = require('../core/auth.js')
 const authController = {
 
   index: async (req, res) => {
@@ -12,7 +12,6 @@ const authController = {
       password: '1234'
     }
     const body = req.body
-    console.log('BODY', body)
     // eslint-disable-next-line no-prototype-builtins
     if (!body.hasOwnProperty('username') && !body.hasOwnProperty('username')) {
       res.end(await render('login'))
@@ -22,9 +21,14 @@ const authController = {
       res.end(await render('login'))
     } else {
       await authorize(req, res, user, body.hasOwnProperty('remember-me'))
-      res.end()
+      res.redirect('/teacher')
     }
+  },
+  logout: async (req, res) => {
+    await logOut(res)
+    res.redirect('login')
   }
+
 }
 
 module.exports = {

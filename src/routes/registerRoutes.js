@@ -7,14 +7,14 @@ const registerRoutes = (route, middleware) => {
   route.GET('/', controller.get('home'))
   middleware.add(authorize,
     [
-      route.GET('/about', controller.get('about')),
+      route.GET('/posts/{slug}', controller.get('post', 'show')),
       route.GET('/posts', controller.get('post')),
       route.GET('/teacher', controller.get('teacher')),
-      route.POST('/ai', controller.get('openAi'))
+      route.POST('/ai', controller.get('openAi')),
+      route.POST('/logout', controller.get('auth', 'logout'))
     ]
   )
-
-  route.GET('/posts/{slug}', controller.get('post', 'show'))
+  route.GET('/about', controller.get('about'))
 }
 
 const defaultRoutes = (route) => {

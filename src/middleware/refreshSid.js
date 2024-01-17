@@ -1,38 +1,26 @@
-const { generateSessionId, getCookieExpiration } = require('../core/utils')
+const { generateSessionId } = require('../core/utils')
 const { client } = require('../core/redis')
+const { authorize } = require('../core/auth')
 const refreshSid = async (req, res, next) => {
-  console.log('from refresh SID', await req.isLoggedIn, res.cookies.exist('refresh-sid'))
   try {
-    if (await req.isLoggedIn && !res.cookies.exist('refresh-sid')) {
-      let SID = res.cookies.get('SID')
+    if (req.isLoggedIn && !res.cookies.exist('refresh-sid')) {
+      const SID = res.cookies.get('SID')
+      console.log(
+        'from refresh SID',
+        SID
+      )
       const session = await client.get(`session:${SID}`)
-      const rememberMe = Boolean(res.cookies.exist('remember-me') && parseInt(res.cookies.get('remember-me')))
-      const cookieParams = {
-        Path: '/',
-        httpOnly: true,
-        Secure: true,
-        SameSite: 'Strict'
+      if (session && SID) {
+        res.cookies.del('SID')
+        await client.del(`session:${SID}`)
+        await authorize(req, res, session, res.cookies.exist('remember-me'))
       }
-      res.cookies.del('SID')
-      client.del(`session:${SID}`)
-      SID = generateSessionId(20)
-      await client.set(`session:${SID}`, JSON.stringify(session))
-      if (rememberMe) {
-        cookieParams.expires = getCookieExpiration(30)
-      }
-      res.cookies.set('SID', SID, cookieParams)
-      console.log('SID', SID)
-      client.EXPIRE(`session:${SID}`, rememberMe ? 86400 * 30 : 86400)
-      cookieParams['Max-Age'] = 20
-      res.cookies.set('refresh-sid', '1', cookieParams)
-      res.cookies.setCookiesHeader(res)
     }
   } catch (error) {
-    console.log('Error refreshing SID', error.message)
-  } finally {
-
+    throw new Error('Error refreshing SID: ' + error.message)
   }
-  return next()
+
+  next()
 }
 
 module.exports = { refreshSid }

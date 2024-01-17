@@ -1,9 +1,9 @@
-const { render } = require('../core/render.js')
-
 const homeController = {
 
-  index: async (req, res) => {
-    res.end(await render('/'))
+  index: (req, res) => {
+    res.render('/', {
+      greetings: 'HELLO'
+    })
   }
 
 }
